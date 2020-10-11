@@ -17,7 +17,7 @@ func HandleRequest(ctx context.Context, input Input) {
 	fmt.Println(movieName)
 	fmt.Println(movieYear)
 
-	movie, err := client.GetUser(movieName, movieYear)
+	movie, err := client.GetMovie(movieName, movieYear)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
 	}
