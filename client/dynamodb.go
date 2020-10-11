@@ -10,11 +10,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"jaz.com/uala-api-movies/domain"
 	"os"
+	"strconv"
 )
 
 const (
 	DefaultRegion = "us-east-1"
 	tableName = "Movies"
+)
+
+var (
+	ENVIRONMENT = os.Getenv("ENVIRONMENT")
 )
 
 func GetMovie(movieName string, movieYear string) (domain.Item, error) {
@@ -120,15 +125,69 @@ func GetAllMoviesSinceYearWithRating(year int, minRating  float32) () {
 	fmt.Println("Found", numItems, "movie(s) with a rating above", minRating, "since", year)
 }
 
+func UpdateMovieRating(movie domain.Item){
+	// Update item in table Movies
+
+
+	year:= strconv.Itoa(movie.Year)
+	fmt.Println("updating '" + movie.Title + "' (" + year+ ")")
+
+	newRating := fmt.Sprintf("%.1f",movie.Rating)
+	fmt.Println("new rating: ",newRating)
+
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String(tableName),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":r": {
+				N: aws.String(newRating),
+			},
+		},
+		Key: map[string]*dynamodb.AttributeValue{
+			"Year": {
+				N: aws.String(year),
+			},
+			"Title": {
+				S: aws.String(movie.Title),
+			},
+		},
+		ReturnValues:     aws.String("UPDATED_NEW"),
+		UpdateExpression: aws.String("set Rating = :r"),
+	}
+
+	client, err := getClient()
+	_, err = client.UpdateItem(input)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Successfully updated '" + movie.Title + "' (" + year + ") rating to " + fmt.Sprintf("%.1f",movie.Rating))
+}
+
 
 func getClient() (*dynamodb.DynamoDB, error) {
 
-
 	conf := aws.Config{Region: aws.String(DefaultRegion)}
-	session := session.Must(session.NewSession())
+	session, err := getSession()
+	if err != nil {
+		return nil, err
+	}
 
+	svc := dynamodb.New(session,  &conf)
+	return svc, nil
 
-	/*session, err := session.NewSessionWithOptions(session.Options{
+}
+
+func getSession() (*session.Session, error) {
+
+	if ENVIRONMENT == "dev" {
+		fmt.Println("running in dev environment")
+		session := session.Must(session.NewSession())
+		return session, nil
+	}
+
+	fmt.Println("running in local environment")
+	session, err := session.NewSessionWithOptions(session.Options{
 		// Specify profile to load for the session's config
 		Profile: "uala-arg-playground-dev",
 
@@ -142,11 +201,8 @@ func getClient() (*dynamodb.DynamoDB, error) {
 	})
 	if err != nil {
 		return nil, err
-	}*/
-
-	svc := dynamodb.New(session,  &conf)
-	return svc, nil
-
+	}
+	return session, nil
 }
 
 
