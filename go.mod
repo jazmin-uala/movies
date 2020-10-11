@@ -1,4 +1,4 @@
-module uala.com/uala-api-users
+module jaz.com/uala-api-movies
 
 go 1.15
 
