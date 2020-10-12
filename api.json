@@ -1,0 +1,97 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2020-09-12T04:08:08Z",
+    "title": "Movies-api"
+  },
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/movies": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "min_rating",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Output"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "credentials": "arn:aws:iam::161142984839:role/movies-api-role",
+          "httpMethod": "POST",
+          "type": "aws",
+          "uri":"arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:161142984839:function:getAllMovies/invocations",
+          "requestParameters": {
+            "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
+          },
+          "requestTemplates": {
+            "application/json": "{\n \"since\": $input.params('since')\n, \"min_rating\": $input.params('min_rating')\n}"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Output": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Movie"
+      },
+      "title": "Result"
+    },
+    "Movie": {
+      "type": "object",
+      "properties": {
+        "Title": {
+          "type": "string"
+        },
+        "Plot": {
+          "type": "string"
+        },
+        "Year": {
+          "type": "number"
+        },
+        "Ratio": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "x-amazon-apigateway-request-validators": {
+    "Validate body": {
+      "validateRequestParameters": false,
+      "validateRequestBody": true
+    },
+    "Validate query string parameters and headers": {
+      "validateRequestParameters": true,
+      "validateRequestBody": false
+    }
+  }
+}
