@@ -32,9 +32,15 @@
         ],
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Ok",
             "schema": {
-              "$ref": "#/definitions/Output"
+              "$ref": "#/definitions/AllMoviesResponse"
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
             }
           }
         },
@@ -55,11 +61,110 @@
             }
           }
         }
+      },
+      "post":{
+        "x-amazon-apigateway-request-validator" : "all",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Added"
+          }
+        },
+        "parameters": [
+          {
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration" : {
+          "type": "aws",
+          "credentials": "arn:aws:iam::161142984839:role/movies-api-role",
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:161142984839:function:updateMovie/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "2\\d{2}": {
+              "statusCode": "200"
+            },
+            "default": {
+              "statusCode": "400",
+              "responseTemplates": {
+                "application/json": "json 400 response template",
+                "application/xml": "xml 400 response template"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/movies/{title}/{year}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "title",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Movie"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "credentials": "arn:aws:iam::161142984839:role/movies-api-role",
+          "httpMethod": "POST",
+          "uri":"arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:161142984839:function:getMovies/invocations",
+          "requestTemplates": {
+            "application/json": "{\n\"MovieName\": \"$input.params('title')\",\n   \"MovieYear\": \"$input.params('year')\"\n}"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_templates"
+        }
       }
     }
   },
   "definitions": {
-    "Output": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        },
+        "errorType": {
+          "type": "string"
+        }
+      }
+    },
+    "AllMoviesResponse": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Movie"
@@ -84,14 +189,14 @@
       }
     }
   },
-  "x-amazon-apigateway-request-validators": {
-    "Validate body": {
-      "validateRequestParameters": false,
-      "validateRequestBody": true
+  "x-amazon-apigateway-request-validators" : {
+    "all" : {
+      "validateRequestBody" : true,
+      "validateRequestParameters" : true
     },
-    "Validate query string parameters and headers": {
-      "validateRequestParameters": true,
-      "validateRequestBody": false
+    "params-only" : {
+      "validateRequestBody" : false,
+      "validateRequestParameters" : true
     }
   }
 }
