@@ -6,5 +6,10 @@ import (
 )
 
 func main() {
+	/*input := handler.Input{}
+	input.Title = "The e"
+	input.Year = "2016"
+	input.Rating = "7.0"
+	handler.HandleRequest(nil, input)*/
 	lambda.Start(handler.HandleRequest)
 }

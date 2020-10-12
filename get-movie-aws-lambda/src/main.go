@@ -9,8 +9,8 @@ func main() {
 	/*input := handler.Input{}
 	input.MovieName = "The Big New Movie"
 	input.MovieYear = "2016"
-	x,_:= handler.HandleRequest(nil, input)
-	fmt.Print(x)*/
+	jsonResult,_:= handler.HandleRequest(nil, input)
+	fmt.Print(jsonResult)*/
 	lambda.Start(handler.HandleRequest)
 }
 

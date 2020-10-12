@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"jaz.com/uala-api-movies/utils/domain"
 	"jaz.com/uala-api-movies/utils/repository"
 	"strconv"
@@ -19,8 +20,8 @@ func NewRepository(client *dynamodb.DynamoDB) * Repository {
 	return this
 }
 
-func (repository Repository) updateMovieRating(movie domain.Item){
-	// Update item in table Movies
+func (repository Repository) updateMovieRating(movie domain.Item) error{
+	updatedMovie := domain.Item{}
 
 	year:= strconv.Itoa(movie.Year)
 	fmt.Println("updating '" + movie.Title + "' (" + year+ ")")
@@ -47,11 +48,15 @@ func (repository Repository) updateMovieRating(movie domain.Item){
 		UpdateExpression: aws.String("set Rating = :r"),
 	}
 
-	_, err := repository.movies.DynamoClient.UpdateItem(input)
+	result, err := repository.movies.DynamoClient.UpdateItem(input)
 	if err != nil {
 		fmt.Println(err.Error())
-		return
 	}
-
 	fmt.Println("Successfully updated '" + movie.Title + "' (" + year + ") rating to " + fmt.Sprintf("%.1f",movie.Rating))
+
+	err = dynamodbattribute.UnmarshalMap(result.Attributes, &updatedMovie)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+	}
+	return err
 }

@@ -6,5 +6,10 @@ import (
 )
 
 func main() {
+	/*input := handler.Input{}
+	input.MinRating = 1.0
+	input.Since = 1990
+	jsonResult,_:= handler.HandleRequest(nil, input)
+	fmt.Print(jsonResult)*/
 	lambda.Start(handler.HandleRequest)
 }

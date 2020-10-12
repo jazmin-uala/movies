@@ -2,19 +2,19 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"jaz.com/uala-api-movies/utils/client"
 )
 
-func HandleRequest(ctx context.Context, input Input) {
+func HandleRequest(ctx context.Context, input Input)  (Output, error){
 	client, err := client.NewClient()
 	if err != nil {
-		fmt.Println("Client Error: ", err)
-		return
+		errors.New(fmt.Sprintf("ClientError, %v", err))
 	}
 	moviesRepository := NewRepository(client)
 	handler := NewHandler(moviesRepository)
-	handler.Handle(input)
+	return handler.Handle(input)
 }
 
 type Handler struct{
@@ -28,9 +28,12 @@ func NewHandler(repository * Repository) * Handler{
 }
 
 
-func (h Handler) Handle(input Input) {
+func (h Handler) Handle(input Input)  (Output, error) {
 	fmt.Println("------------------- all movies --------------")
-	client, _ := client.NewClient()
-	moviesRepository := NewRepository(client)
-	moviesRepository.GetAllMoviesSinceYearWithRating(input.Since, input.MinRating)
+	result, _ := h.moviesRepository.GetAllMoviesSinceYearWithRating(input.Since, input.MinRating)
+	movies := make([]Movie, 0)
+	for _, item := range result {
+		movies = append(movies, Movie{ Title: item.Title, Year: fmt.Sprintf("%d", item.Year), Plot: item.Plot, Rating: fmt.Sprintf("%.1f",item.Rating)})
+	}
+	return Output{Movies: movies},nil
 }

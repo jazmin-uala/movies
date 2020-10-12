@@ -21,7 +21,7 @@ func NewRepository(client *dynamodb.DynamoDB) * Repository {
 	return this
 }
 
-func (repository Repository)  GetAllMoviesSinceYearWithRating(year int, minRating  float32) () {
+func (repository Repository)  GetAllMoviesSinceYearWithRating(year int, minRating  float32) ([]domain.Item, error) {
 	// Create the Expression to fill the input struct with.
 	// Get all movies in that year; we'll pull out those with a higher rating later
 	filter := expression.Name("Year").GreaterThan(expression.Value(2000))
@@ -56,11 +56,12 @@ func (repository Repository)  GetAllMoviesSinceYearWithRating(year int, minRatin
 	}
 
 
+	moviesSlice := make([]domain.Item, 0)
 	numItems := 0
-	for _, i := range result.Items {
+	for _, itemStruct := range result.Items {
 		item := domain.Item{}
 
-		err = dynamodbattribute.UnmarshalMap(i, &item)
+		err = dynamodbattribute.UnmarshalMap(itemStruct, &item)
 
 		if err != nil {
 			fmt.Println("Got error unmarshalling:")
@@ -70,12 +71,14 @@ func (repository Repository)  GetAllMoviesSinceYearWithRating(year int, minRatin
 
 		if item.Rating > minRating {
 			numItems++
+			fmt.Println()
 			fmt.Println("Title: ", item.Title)
 			fmt.Println("Rating:", item.Rating)
-			fmt.Println()
+			moviesSlice = append(moviesSlice, item)
 		}
 	}
 
 	fmt.Println("Found", numItems, "movie(s) with a rating above", minRating, "since", year)
+	return moviesSlice, nil
 }
 
