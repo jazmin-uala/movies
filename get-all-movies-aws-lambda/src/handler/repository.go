@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-	"jaz.com/uala-api-movies/src/domain"
-	"jaz.com/uala-api-movies/src/repository"
+	"jaz.com/uala-api-movies/utils/domain"
+	"jaz.com/uala-api-movies/utils/repository"
 	"os"
 )
 

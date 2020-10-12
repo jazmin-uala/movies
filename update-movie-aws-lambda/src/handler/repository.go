@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"jaz.com/uala-api-movies/src/domain"
-	"jaz.com/uala-api-movies/src/repository"
+	"jaz.com/uala-api-movies/utils/domain"
+	"jaz.com/uala-api-movies/utils/repository"
 	"strconv"
 )
 

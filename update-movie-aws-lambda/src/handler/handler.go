@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"fmt"
-	"jaz.com/uala-api-movies/src/client"
-	"jaz.com/uala-api-movies/src/domain"
+	"jaz.com/uala-api-movies/utils/client"
+	"jaz.com/uala-api-movies/utils/domain"
 	"strconv"
 )
 

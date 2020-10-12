@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"jaz.com/uala-api-movies/src/domain"
-	"jaz.com/uala-api-movies/src/repository"
+	"jaz.com/uala-api-movies/utils/domain"
+	"jaz.com/uala-api-movies/utils/repository"
 )
 
 type Repository struct {
@@ -21,8 +21,7 @@ func NewRepository(client *dynamodb.DynamoDB) * Repository {
 }
 
 func (repository Repository) GetMovie(movieName string, movieYear string) (domain.Item, error) {
-	user := domain.Item{}
-
+	movie := domain.Item{}
 
 	result, err := repository.movies.DynamoClient.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(repository.movies.TableName),
@@ -36,23 +35,20 @@ func (repository Repository) GetMovie(movieName string, movieYear string) (domai
 		},
 	})
 
-
 	if err != nil {
 		fmt.Println(err.Error())
-		return user, err
+		return movie, err
 	}
 
 	if result.Item == nil {
 		msg := "Could not find '" + movieName + "'"
-		return user,errors.New(msg)
+		return movie,errors.New(msg)
 	}
 
-
-	err = dynamodbattribute.UnmarshalMap(result.Item, &user)
+	err = dynamodbattribute.UnmarshalMap(result.Item, &movie)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
 	}
 
-
-	return user, nil
+	return movie, nil
 }

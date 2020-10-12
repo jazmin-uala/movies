@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
-	"jaz.com/uala-api-movies/src/client"
+	"jaz.com/uala-api-movies/utils/client"
 )
 
 

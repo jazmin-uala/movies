@@ -28,6 +28,15 @@ func NewLocalClient() (*dynamodb.DynamoDB, error) {
 	return svc, nil
 }
 
+func NewClientWithConfig(config aws.Config) (*dynamodb.DynamoDB, error) {
+	session, err := getLocalSession()
+	if err != nil {
+		return nil, err
+	}
+	svc := dynamodb.New(session,&config)
+	return svc, nil
+}
+
 func NewClient() (*dynamodb.DynamoDB, error) {
 	conf := aws.Config{Region: aws.String(DefaultRegion)}
 	session, err := getLambdaSession()
